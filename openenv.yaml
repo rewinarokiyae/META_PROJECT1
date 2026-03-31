@@ -1,0 +1,10 @@
+name: aiops-war-room
+version: "1.0.0"
+description: "AI Operations War Room (AIOps Incident Response Environment)"
+authors:
+  - name: "Meta SRE Agent"
+schema_version: "1.0"
+entrypoint: "api.main:app"
+metadata:
+  framework: "FastAPI"
+  language: "python"
