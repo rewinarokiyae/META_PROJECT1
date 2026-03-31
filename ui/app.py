@@ -28,16 +28,14 @@ def start_backend_if_needed():
         requests.get(f"{API_URL}/tasks", timeout=1)
         return True
     except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
-        import threading
-        import uvicorn
-        from api.main import app
-        def run_api():
-            try:
-                uvicorn.run(app, host="127.0.0.1", port=8000, log_level="warning")
-            except Exception:
-                pass
-        t = threading.Thread(target=run_api, daemon=True)
-        t.start()
+        import subprocess
+        subprocess.Popen([
+            sys.executable, "-m", "uvicorn", 
+            "api.main:app", 
+            "--host", "127.0.0.1", 
+            "--port", "8000",
+            "--log-level", "warning"
+        ])
         
         for _ in range(10):
             import time
