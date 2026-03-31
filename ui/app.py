@@ -20,7 +20,36 @@ except ImportError:
 from dotenv import load_dotenv
 
 load_dotenv()
-API_URL = "http://localhost:8000"
+API_URL = "http://127.0.0.1:8000"
+
+@st.cache_resource
+def start_backend_if_needed():
+    try:
+        requests.get(f"{API_URL}/tasks", timeout=1)
+        return True
+    except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+        import threading
+        import uvicorn
+        from api.main import app
+        def run_api():
+            try:
+                uvicorn.run(app, host="127.0.0.1", port=8000, log_level="warning")
+            except Exception:
+                pass
+        t = threading.Thread(target=run_api, daemon=True)
+        t.start()
+        
+        for _ in range(10):
+            import time
+            time.sleep(0.5)
+            try:
+                if requests.get(f"{API_URL}/tasks", timeout=1).status_code == 200:
+                    break
+            except Exception:
+                pass
+        return True
+
+start_backend_if_needed()
 
 st.set_page_config(page_title="Incident Command Center", layout="wide", page_icon="🚨")
 
